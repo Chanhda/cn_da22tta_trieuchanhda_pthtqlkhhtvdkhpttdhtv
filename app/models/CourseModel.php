@@ -57,18 +57,39 @@ class CourseModel {
         return $stmt->execute();
     }
 
-    // 5. Xóa môn học
+    // 5. Xóa môn học (Phiên bản nâng cấp: Dọn dẹp dữ liệu con trước)
     public function deleteCourse($id) {
+        $id = trim($id);
+        
+        // 1. Xóa Lịch học (Bảng lichhoc và thoikhoabieu)
+        $this->conn->query("DELETE FROM LichHoc WHERE MaHocPhan = '$id'");
+        $this->conn->query("DELETE FROM ThoiKhoaBieu WHERE MaHocPhan = '$id'");
+
+        // 2. Xóa Điều kiện tiên quyết
+        $this->conn->query("DELETE FROM DieuKienTienQuyet WHERE MaHocPhan = '$id' OR MaHocPhanTienQuyet = '$id'");
+
+        // 3. Xóa Chi tiết kế hoạch (Dự định học của SV)
+        $this->conn->query("DELETE FROM ChiTietKeHoach WHERE MaHocPhan = '$id'");
+
+        // 4. Kiểm tra xem có Điểm chưa (Bảng KetQuaHocTap)
+        // Nếu có điểm rồi thì TUYỆT ĐỐI KHÔNG XÓA để bảo toàn lịch sử học tập
+        $checkDiem = $this->conn->query("SELECT COUNT(*) as c FROM KetQuaHocTap WHERE MaHocPhan = '$id'");
+        if ($checkDiem->fetch_assoc()['c'] > 0) {
+            return false; // Có điểm rồi, chặn lại ngay
+        }
+
+        // 5. Xóa Môn học
         $sql = "DELETE FROM HocPhan WHERE MaHocPhan = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("s", $id);
+        
         try {
-            return $stmt->execute();
+            $stmt->execute();
+            return $stmt->affected_rows > 0;
         } catch (mysqli_sql_exception $e) {
-            return false; // Lỗi ràng buộc khóa ngoại (đang có sinh viên học)
+            return false;
         }
     }
-
     // ==========================================================
     // PHẦN 2: QUẢN TRỊ VIÊN (ADMIN) - LỊCH HỌC & TIÊN QUYẾT
     // ==========================================================
@@ -138,47 +159,72 @@ class CourseModel {
     // PHẦN 3: SINH VIÊN - LẬP KẾ HOẠCH (LOGIC PHỨC TẠP)
     // ==========================================================
 
-    // 12. Lấy danh sách môn học ĐẦY ĐỦ (Kèm Lịch & Tiên quyết) để Sinh viên đăng ký
-    public function getAllCoursesWithDetails() {
+    // 12. Lấy danh sách môn học ĐẦY ĐỦ (Đã sửa lỗi hiển thị nhiều lịch học)
+   public function getAllCoursesWithDetails() {
         $sql = "SELECT hp.*, 
-                       tkb.Thu, tkb.TietBatDau, tkb.SoTiet, tkb.PhongHoc,
+                       tkb.ID_TKB, tkb.Thu, tkb.TietBatDau, tkb.SoTiet, tkb.PhongHoc,
                        dk.MaHocPhanTienQuyet
                 FROM HocPhan hp
-                LEFT JOIN ThoiKhoaBieu tkb ON hp.MaHocPhan = tkb.MaHocPhan
+                -- Dùng TRIM để chắc chắn khớp mã
+                LEFT JOIN ThoiKhoaBieu tkb ON TRIM(hp.MaHocPhan) = TRIM(tkb.MaHocPhan)
                 LEFT JOIN DieuKienTienQuyet dk ON hp.MaHocPhan = dk.MaHocPhan
-                ORDER BY hp.HocKyGoiY ASC";
+                ORDER BY hp.HocKyGoiY ASC, hp.MaHocPhan ASC";
         
         $result = $this->conn->query($sql);
         $courses = [];
         
-        // Xử lý gom nhóm dữ liệu (Vì 1 môn có thể có nhiều dòng do Join bảng)
         while ($row = $result->fetch_assoc()) {
             $maHP = $row['MaHocPhan'];
+
             if (!isset($courses[$maHP])) {
                 $courses[$maHP] = [
                     'MaHocPhan' => $row['MaHocPhan'],
                     'TenHocPhan' => $row['TenHocPhan'],
                     'SoTinChi' => $row['SoTinChi'],
                     'HocKyGoiY' => $row['HocKyGoiY'],
-                    // Format text hiển thị
-                    'LichHoc' => ($row['Thu']) ? "Thứ {$row['Thu']} (Tiết {$row['TietBatDau']}-" . ($row['TietBatDau'] + $row['SoTiet'] - 1) . ")" : "Chưa có lịch",
-                    // Dữ liệu thô để check trùng
-                    'RawLich' => [
-                        'Thu' => $row['Thu'], 
-                        'Start' => (int)$row['TietBatDau'], 
-                        'End' => (int)$row['TietBatDau'] + (int)$row['SoTiet'] - 1
-                    ],
+                    'LichHoc' => [],
+                    // [QUAN TRỌNG] Bổ sung dòng này để View nhận diện được lịch
+                    'RawLich' => ['Thu' => 0, 'Start' => 0, 'End' => 0],
                     'TienQuyet' => []
                 ];
             }
-            // Gom các môn tiên quyết vào mảng
+
+            // Xử lý Lịch học
+            if ($row['ID_TKB']) {
+                $thuHienThi = ($row['Thu'] == 8) ? "CN" : "T{$row['Thu']}";
+                $lichText = "{$thuHienThi} (Tiết {$row['TietBatDau']}-" . ($row['TietBatDau'] + $row['SoTiet'] - 1) . ") P.{$row['PhongHoc']}";
+                
+                if (!in_array($lichText, $courses[$maHP]['LichHoc'])) {
+                    $courses[$maHP]['LichHoc'][] = $lichText;
+                }
+
+                // [QUAN TRỌNG] Nạp dữ liệu cho RawLich
+                if ($courses[$maHP]['RawLich']['Thu'] == 0) {
+                    $courses[$maHP]['RawLich'] = [
+                        'Thu' => (int)$row['Thu'], 
+                        'Start' => (int)$row['TietBatDau'], 
+                        'End' => (int)$row['TietBatDau'] + (int)$row['SoTiet'] - 1
+                    ];
+                }
+            }
+
+            // Xử lý Tiên quyết
             if ($row['MaHocPhanTienQuyet']) {
-                // Tránh duplicate nếu dòng bị lặp do join lịch học
                 if (!in_array($row['MaHocPhanTienQuyet'], $courses[$maHP]['TienQuyet'])) {
                     $courses[$maHP]['TienQuyet'][] = $row['MaHocPhanTienQuyet'];
                 }
             }
         }
+
+        // Format lại lần cuối
+        foreach ($courses as $key => $course) {
+            if (empty($course['LichHoc'])) {
+                $courses[$key]['LichHoc'] = null;
+            } else {
+                $courses[$key]['LichHoc'] = implode("<br>", $course['LichHoc']);
+            }
+        }
+
         return $courses;
     }
 }

@@ -32,7 +32,8 @@ class StudentController extends AuthController {
         $courseModel = new CourseModel();
         $studentModel = new StudentModel();
         
-        $courses = $courseModel->getAllCourses(); // Đảm bảo CourseModel có hàm này
+
+        $courses = $courseModel->getAllCoursesWithDetails();
         $passedCourses = $studentModel->getPassedCourses($_SESSION['user_id']);
         
         require_once __DIR__ . '/../../views/student/create_plan.php';

@@ -448,46 +448,22 @@
 
         </div>
     </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
+</div> <script>
     const ctx = document.getElementById('progressChart').getContext('2d');
-    const gradient = ctx.createLinearGradient(0, 0, 0, 200);
-    gradient.addColorStop(0, 'rgba(16, 185, 129, 0.3)');
-    gradient.addColorStop(1, 'rgba(16, 185, 129, 0.1)');
-
     new Chart(ctx, {
         type: 'doughnut',
         data: {
             labels: ['Đã tích lũy', 'Còn lại'],
             datasets: [{
                 data: [<?php echo $tienDo['accumulated']; ?>, <?php echo $tienDo['remaining']; ?>],
-                backgroundColor: [
-                    'rgba(16, 185, 129, 0.8)',
-                    'rgba(239, 68, 68, 0.2)'
-                ],
-                borderColor: [
-                    '#10b981',
-                    '#ef4444'
-                ],
-                borderWidth: 2,
-                hoverOffset: 5
+                backgroundColor: ['#198754', '#dc3545'],
+                hoverOffset: 4
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: true,
             plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 15,
-                        font: {
-                            size: 12,
-                            weight: 'bold'
-                        }
-                    }
-                }
+                legend: { position: 'bottom' }
             }
         }
     });

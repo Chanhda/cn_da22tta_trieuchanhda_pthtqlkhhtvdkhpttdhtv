@@ -1,32 +1,86 @@
 <?php
-require_once __DIR__ . '/AuthController.php';
+// Nạp các Model cần thiết
 require_once __DIR__ . '/../models/AdvisorModel.php';
+require_once __DIR__ . '/../models/StudentModel.php';
+// require_once __DIR__ . '/../core/Database.php'; // Mở comment nếu cần dùng Database trực tiếp
 
-class AdvisorController extends AuthController {
+class AdvisorController {
 
-    private function checkAdvisorAuth() {
+    // --- 1. HÀM KIỂM TRA QUYỀN (Sửa tên thành checkAuth cho thống nhất) ---
+    private function checkAuth() {
         if (session_status() === PHP_SESSION_NONE) session_start();
+        // Kiểm tra đăng nhập và đúng quyền Cố vấn
         if (!isset($_SESSION['is_logged_in']) || $_SESSION['role'] !== 'CoVanHocTap') {
             header("Location: index.php?page=login");
             exit;
         }
     }
 
+    // --- 2. TRANG CHỦ (DASHBOARD) ---
     public function dashboard() {
-        $this->checkAdvisorAuth();
+        $this->checkAuth();
         $maCoVan = $_SESSION['user_id'];
         
         $model = new AdvisorModel();
-        // Lấy danh sách sơ bộ
+        // Lấy danh sách kế hoạch chờ duyệt
         $dsChoDuyet = $model->getPendingPlans($maCoVan);
 
-        // Truyền biến $model sang View để View dùng cho việc lấy chi tiết (tránh khởi tạo lại new Model ở View)
-        // Hoặc View sẽ tự khởi tạo 1 lần duy nhất.
         require_once __DIR__ . '/../../views/advisor/dashboard.php';
     }
 
+    // --- 3. DANH SÁCH SINH VIÊN ---
+   public function student_list() {
+        $this->checkAuth();
+        
+        // 1. Lấy mã cố vấn đang đăng nhập
+        $maCoVan = $_SESSION['user_id']; 
+        
+        $model = new StudentModel();
+        
+        // 2. Gọi hàm mới: Chỉ lấy sinh viên của cố vấn này
+        $dsSinhVien = $model->getStudentsByAdvisor($maCoVan);
+
+        // 3. Gọi giao diện (Không cần sửa file view)
+        require_once __DIR__ . '/../../views/advisor/student_list.php';
+    }
+    // --- 4. XÉT DUYỆT TIẾN ĐỘ (Hiện bảng môn học) ---
+    public function check_progress() {
+        $this->checkAuth();
+        
+        if (isset($_GET['mssv'])) {
+            $mssv = $_GET['mssv'];
+            $model = new AdvisorModel();
+            
+            // Lấy danh sách điểm/tiến độ
+            $transcript = $model->getStudentGrades($mssv);
+            
+            require_once __DIR__ . '/../../views/advisor/check_progress.php';
+        } else {
+            header("Location: index.php?page=advisor_student_list");
+        }
+    }
+
+    // --- 5. XỬ LÝ BẤM NÚT ĐẠT/KHÔNG ĐẠT ---
+    public function toggle_status() {
+        $this->checkAuth();
+        
+        if (isset($_GET['mssv']) && isset($_GET['mahp']) && isset($_GET['status'])) {
+            $mssv = $_GET['mssv'];
+            $maHP = $_GET['mahp'];
+            $status = $_GET['status']; // 'Dat' hoặc 'KhongDat'
+
+            $model = new AdvisorModel();
+            $model->updateCourseStatus($mssv, $maHP, $status);
+            
+            // Quay lại trang cũ
+            header("Location: index.php?page=advisor_check_progress&mssv=" . $mssv);
+            exit;
+        }
+    }
+
+    // --- 6. DUYỆT KẾ HOẠCH (Ở Dashboard) ---
     public function approve() {
-        $this->checkAdvisorAuth();
+        $this->checkAuth();
         if (isset($_GET['id'])) {
             $idKeHoach = $_GET['id'];
             $model = new AdvisorModel();
@@ -38,8 +92,9 @@ class AdvisorController extends AuthController {
         }
     }
 
+    // --- 7. TỪ CHỐI KẾ HOẠCH (Ở Dashboard) ---
     public function reject() {
-        $this->checkAdvisorAuth();
+        $this->checkAuth();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $idKeHoach = $_POST['id_kehoach'];
             $lyDo = $_POST['ly_do'];
@@ -51,24 +106,6 @@ class AdvisorController extends AuthController {
                 echo "<script>alert('Lỗi hệ thống!'); window.location.href='index.php?page=advisor_dashboard';</script>";
             }
         }
-    }
-    // Xem danh sách lớp chủ nhiệm
-    public function class_list() {
-        $this->checkAdvisorAuth();
-        $maCoVan = $_SESSION['user_id'];
-        
-        // Gọi Model để lấy danh sách lớp của cố vấn này
-        // (Lưu ý: Bạn cần đảm bảo ClassModel có hàm getClassesByAdvisor($maCoVan))
-        // Nếu chưa có, ta dùng tạm SQL trực tiếp ở đây hoặc thêm vào model
-        $db = new Database();
-        $conn = $db->connect();
-        $sql = "SELECT * FROM Lop WHERE MaCoVan = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $maCoVan);
-        $stmt->execute();
-        $dsLop = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-        require_once __DIR__ . '/../../views/advisor/class_list.php';
     }
 }
 ?>

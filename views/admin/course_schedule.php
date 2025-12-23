@@ -51,7 +51,13 @@
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-calendar-day"></i> Thứ</label>
                     <select name="thu" class="form-select" required>
-                        <?php for($i=2; $i<=8; $i++) echo "<option value='$i'>Thứ $i</option>"; ?>
+                        <?php 
+                        // SỬA ĐOẠN NÀY: Kiểm tra nếu là 8 thì in "Chủ Nhật"
+                        for($i=2; $i<=8; $i++) {
+                            $tenThu = ($i == 8) ? "Chủ Nhật" : "Thứ $i";
+                            echo "<option value='$i'>$tenThu</option>";
+                        }
+                        ?>
                     </select>
                 </div>
                 <div class="form-group">
@@ -86,72 +92,14 @@
                 <tbody>
                     <?php foreach ($schedule as $s): ?>
                     <tr style="transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='#fafbfc';" onmouseout="this.style.backgroundColor='white';">
-                        <td><span class="day-badge">Thứ <?php echo $s['Thu']; ?></span></td>
-                        <td><span class="schedule-badge"><?php echo $s['TietBatDau']; ?> - <?php echo $s['TietBatDau']+$s['SoTiet']-1; ?></span></td>
-                        <td><span class="schedule-badge"><?php echo $s['PhongHoc']; ?></span></td>
-                        <td><?php echo $s['GiangVien']; ?></td>
                         <td>
-                            <a href="index.php?page=admin_schedule_delete&id_tkb=<?php echo $s['ID_TKB']; ?>&ma_hp=<?php echo $course['MaHocPhan']; ?>" 
-                               class="btn btn-delete" onclick="return confirm('Xóa lịch này?');">
-                               <i class="fas fa-trash"></i>
-                            </a>
+                            <span class="day-badge">
+                                <?php 
+                                // SỬA ĐOẠN NÀY: Hiển thị trong bảng cũng phải là Chủ Nhật
+                                echo ($s['Thu'] == 8) ? "Chủ Nhật" : "Thứ " . $s['Thu']; 
+                                ?>
+                            </span>
                         </td>
-                    </tr>
-                    <?php endforeach; ?>
-                    <?php if (empty($schedule)): ?>
-                    <tr><td colspan="5" class="text-center text-muted py-4"><i class="fas fa-inbox"></i> Chưa có lịch học nào</td></tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-</body>
-</html>
-            
-            <form action="index.php?page=admin_schedule_store" method="POST" class="form-row">
-                <input type="hidden" name="ma_hp" value="<?php echo $course['MaHocPhan']; ?>">
-                
-                <div class="form-group">
-                    <label class="form-label"><i class="fas fa-calendar-day"></i> Thứ</label>
-                    <select name="thu" class="form-select" required>
-                        <?php for($i=2; $i<=8; $i++) echo "<option value='$i'>Thứ $i</option>"; ?>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label"><i class="fas fa-clock"></i> Tiết BĐ</label>
-                    <input type="number" name="tiet" class="form-control" min="1" max="12" placeholder="1" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label"><i class="fas fa-hourglass-half"></i> Số tiết</label>
-                    <input type="number" name="so_tiet" class="form-control" min="1" max="5" placeholder="2" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label"><i class="fas fa-door-open"></i> Phòng</label>
-                    <input type="text" name="phong" class="form-control" placeholder="B1-202" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label"><i class="fas fa-chalkboard-user"></i> Giảng viên</label>
-                    <input type="text" name="gv" class="form-control" placeholder="Họ tên" required>
-                </div>
-                <button type="submit" class="btn-add"><i class="fas fa-plus"></i> Thêm Lịch</button>
-            </form>
-
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th><i class="fas fa-calendar-day"></i> Thứ</th>
-                        <th><i class="fas fa-clock"></i> Tiết</th>
-                        <th><i class="fas fa-door-open"></i> Phòng</th>
-                        <th><i class="fas fa-chalkboard-user"></i> Giảng viên</th>
-                        <th><i class="fas fa-trash"></i> Xóa</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($schedule as $s): ?>
-                    <tr style="transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='#fafbfc';" onmouseout="this.style.backgroundColor='white';">
-                        <td><span class="day-badge">Thứ <?php echo $s['Thu']; ?></span></td>
                         <td><span class="schedule-badge"><?php echo $s['TietBatDau']; ?> - <?php echo $s['TietBatDau']+$s['SoTiet']-1; ?></span></td>
                         <td><span class="schedule-badge"><?php echo $s['PhongHoc']; ?></span></td>
                         <td><?php echo $s['GiangVien']; ?></td>

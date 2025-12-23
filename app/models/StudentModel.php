@@ -39,7 +39,9 @@ class StudentModel {
 
     // 3. Lấy kế hoạch mới nhất
     public function getLatestPlan($mssv) {
-        $sql = "SELECT * FROM KeHoachHocTap WHERE MSSV = ? ORDER BY NgayLap DESC LIMIT 1";
+        // Sửa 'ORDER BY NgayLap' thành 'ORDER BY ID_KeHoach'
+        $sql = "SELECT * FROM KeHoachHocTap WHERE MSSV = ? ORDER BY ID_KeHoach DESC LIMIT 1";
+        
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("s", $mssv);
         $stmt->execute();
@@ -119,8 +121,8 @@ class StudentModel {
 
     // 8. Thêm sinh viên mới
     public function addStudent($mssv, $hoTen, $maLop, $email, $maCTDT, $idTaiKhoan) {
-        $sql = "INSERT INTO SinhVien (MSSV, HoTen, MaLop, Email, ChuongTrinhDaoTao, ID_TaiKhoan) 
-                VALUES (?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO SinhVien (MSSV, HoTen, MaLop, Email, MaCTDT, ID_TaiKhoan) 
+        VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("sssssi", $mssv, $hoTen, $maLop, $email, $maCTDT, $idTaiKhoan);
         try { return $stmt->execute(); } catch (Exception $e) { return false; }
@@ -128,7 +130,8 @@ class StudentModel {
 
     // 9. Cập nhật thông tin sinh viên
     public function updateStudent($mssv, $hoTen, $maLop, $email, $maCTDT) {
-        $sql = "UPDATE SinhVien SET HoTen=?, MaLop=?, Email=?, ChuongTrinhDaoTao=? WHERE MSSV=?";
+       // Dòng 133 mới (Đúng)
+$sql = "UPDATE SinhVien SET HoTen=?, MaLop=?, Email=?, MaCTDT=? WHERE MSSV=?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("sssss", $hoTen, $maLop, $email, $maCTDT, $mssv);
         return $stmt->execute();
@@ -140,6 +143,18 @@ class StudentModel {
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("s", $mssv);
         try { return $stmt->execute(); } catch (Exception $e) { return false; }
+    }
+    public function getStudentsByAdvisor($maCoVan) {
+        // Kết nối bảng SinhVien với bảng Lop để lọc theo MaCoVan
+        $sql = "SELECT sv.* FROM SinhVien sv 
+                JOIN Lop l ON sv.MaLop = l.MaLop 
+                WHERE l.MaCoVan = ?
+                ORDER BY sv.MaLop, sv.MSSV ASC"; // Sắp xếp theo lớp rồi đến MSSV
+                
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $maCoVan);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 }
 ?>

@@ -212,5 +212,36 @@ switch ($page) {
         $controller = new AuthController();
         $controller->login();
         break;
+    // --- CỐ VẤN XÉT DUYỆT ---
+    case 'advisor_check_progress':
+        $controller = new AdvisorController();
+        $controller->check_progress();
+        break;
+        
+    case 'advisor_toggle_status':
+        $controller = new AdvisorController();
+        $controller->toggle_status();
+        break;
+    // --- KHU VỰC CỐ VẤN ---
+    case 'advisor_dashboard':
+        $controller = new AdvisorController();
+        $controller->dashboard();
+        break;
+
+    // 👇 THÊM ĐOẠN NÀY VÀO 👇
+    case 'advisor_student_list': 
+        $controller = new AdvisorController();
+        $controller->student_list();
+        break;
+
+    case 'advisor_check_progress':
+        $controller = new AdvisorController();
+        $controller->check_progress();
+        break;
+        
+    case 'advisor_toggle_status':
+        $controller = new AdvisorController();
+        $controller->toggle_status();
+        break;
 }
 ?>

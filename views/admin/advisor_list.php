@@ -154,10 +154,16 @@
                         <td class="text-center"><small><?php echo $cv['SoDienThoai'] ?? '<span class="text-muted">—</span>'; ?></small></td>
                         <td class="text-center"><small class="text-muted"><?php echo $cv['TenDangNhap'] ?? '<span class="text-muted">—</span>'; ?></small></td>
                         <td class="text-center">
+                            <a href="index.php?page=admin_advisor_edit&id=<?php echo $cv['MaCoVan']; ?>" 
+                            class="btn btn-warning btn-sm me-2" 
+                            style="color: #fff; font-weight: 700;">
+                            <i class="fas fa-edit me-1"></i>Sửa
+                            </a>
+
                             <a href="index.php?page=admin_advisor_delete&id=<?php echo $cv['MaCoVan']; ?>" 
-                               class="btn btn-delete"
-                               onclick="return confirm('Xóa cố vấn này?');">
-                               <i class="fas fa-trash me-1"></i>Xóa
+                            class="btn btn-delete"
+                            onclick="return confirm('Xóa cố vấn này?');">
+                            <i class="fas fa-trash me-1"></i>Xóa
                             </a>
                         </td>
                     </tr>

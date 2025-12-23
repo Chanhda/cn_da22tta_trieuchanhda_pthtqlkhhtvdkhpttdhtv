@@ -8,39 +8,35 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root { --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%); --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
-        body { background: var(--primary-gradient) !important; min-height: 100vh; font-family: 'Nunito', Arial, sans-serif; padding: 40px 20px; }
-        .container { max-width: 800px; }
-        .card { border-radius: 20px !important; border: none !important; box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3) !important; overflow: hidden; animation: slideUp 0.6s ease-out; }
-        .card-header { background: var(--primary-gradient) !important; color: white !important; padding: 25px !important; border: none !important; font-weight: 800; font-size: 18px; position: relative; overflow: hidden; }
-        .card-header::before { content: ''; position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); animation: float 3s ease-in-out infinite; }
-        .card-header h5 { position: relative; z-index: 1; margin: 0 !important; display: flex; align-items: center; gap: 10px; }
-        .card-body { padding: 30px !important; background: #f8f9ff; }
-        .table { margin-bottom: 0 !important; border-radius: 15px; overflow: hidden; }
-        .table thead { background: var(--primary-gradient) !important; }
-        .table thead th { color: white !important; padding: 16px 14px !important; font-weight: 700 !important; font-size: 14px !important; border: none !important; letter-spacing: 0.5px; }
-        .table tbody tr { border-bottom: 1px solid #e0e0e0 !important; transition: all 0.3s ease; }
-        .table tbody tr:hover { background-color: #f5f5ff !important; transform: translateX(3px); }
-        .table tbody tr:nth-child(even) { background-color: #fafafe; }
-        .table tbody td { padding: 14px !important; color: #333; vertical-align: middle; }
-        .table tbody td strong { color: #667eea; }
-        .table-info { background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%) !important; font-weight: 700; border-top: 2px solid #667eea !important; }
-        .table-info td { color: #667eea; padding: 16px 14px !important; }
-        .form-label { color: #333; font-weight: 700 !important; margin-bottom: 12px; }
-        .form-control { border-radius: 12px !important; border: 2px solid #e0e0e0 !important; padding: 14px 16px !important; font-size: 15px; transition: all 0.3s ease; font-family: 'Nunito', Arial, sans-serif; }
-        .form-control:focus { border-color: #667eea !important; box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25) !important; background-color: white !important; }
-        .btn { border-radius: 12px !important; padding: 12px 24px !important; font-weight: 700 !important; font-size: 15px; transition: all 0.3s ease; border: none !important; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-secondary { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%) !important; color: white !important; box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3); }
-        .btn-secondary:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(107, 114, 128, 0.4); background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%) !important; color: white !important; }
-        .btn-danger { background: var(--danger-gradient) !important; color: white !important; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
-        .btn-danger:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4); background: linear-gradient(135deg, #f87171 0%, #ef4444 100%) !important; color: white !important; }
-        .btn-success { background: var(--success-gradient) !important; color: white !important; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
-        .btn-success:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4); background: linear-gradient(135deg, #34d399 0%, #10b981 100%) !important; color: white !important; }
-        .d-flex { flex-wrap: wrap; gap: 15px; }
-        hr { border-color: #e0e0e0; margin: 25px 0; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
-        @media (max-width: 768px) { body { padding: 20px 10px; } .card-body { padding: 20px !important; } .btn { padding: 10px 18px !important; font-size: 13px; } .d-flex { justify-content: center; } .d-flex > div { width: 100%; display: flex; gap: 10px; } .d-flex > div > button { flex: 1; } }
+        :root{ --accent:#3b82f6; --surface:#ffffff; --bg:#f6f8fb; }
+        body{ background:var(--bg); min-height:100vh; font-family: "Segoe UI", Tahoma, Arial, sans-serif; padding:28px 20px; color:#0f172a; }
+        .container{ max-width:800px; }
+        .card{ border-radius:10px; border:1px solid #eef2ff; background:var(--surface); box-shadow:0 6px 18px rgba(15,23,42,0.04); overflow:hidden; }
+        .card-header{ background:transparent; color:#0f172a; padding:16px 20px; border-bottom:1px solid #f1f5f9; font-weight:700; font-size:16px; }
+        .card-header h5{ margin:0; display:flex; align-items:center; gap:10px; }
+        .card-body{ padding:20px; }
+        .table{ margin-bottom:0; }
+        .table thead{ background:transparent; }
+        .table thead th{ color:#0f172a; padding:12px; font-weight:700; border-bottom:2px solid #eef2ff; }
+        .table tbody tr{ border-bottom:1px solid #f1f5f9; transition:all .12s ease; }
+        .table tbody tr:hover{ background:#fbfdff; }
+        .table tbody td{ padding:12px; color:#0f172a; vertical-align:middle; }
+        .table tbody td strong{ color:var(--accent); }
+        .table-info{ background:#eef2ff; border-top:1px solid var(--accent); }
+        .table-info td{ color:var(--accent); font-weight:700; }
+        .form-label{ color:#0f172a; font-weight:700; margin-bottom:10px; }
+        .form-control{ border-radius:8px; border:1px solid #eef2ff; padding:10px 12px; font-size:14px; transition:all .12s ease; }
+        .form-control:focus{ border-color:var(--accent); box-shadow:0 0 0 0.12rem rgba(59,130,246,0.12); }
+        .btn{ border-radius:8px; padding:8px 16px; font-weight:700; font-size:14px; border:none; display:inline-flex; align-items:center; gap:8px; transition:all .12s ease; }
+        .btn-secondary{ background:#94a3b8; color:#fff; }
+        .btn-secondary:hover{ background:#7c8fa8; }
+        .btn-danger{ background:linear-gradient(90deg,#ef4444,#dc2626); color:#fff; }
+        .btn-danger:hover{ background:linear-gradient(90deg,#f87171,#ef4444); }
+        .btn-success{ background:linear-gradient(90deg,#2563eb,#3b82f6); color:#fff; }
+        .btn-success:hover{ background:linear-gradient(90deg,#1d4ed8,#2563eb); }
+        .d-flex{ flex-wrap:wrap; gap:12px; }
+        hr{ border-color:#f1f5f9; margin:20px 0; }
+        @media (max-width:768px){ body{ padding:18px 10px; } .card-body{ padding:14px; } .btn{ padding:6px 12px; font-size:13px; } .d-flex{ justify-content:center; } .d-flex > div{ width:100%; display:flex; gap:8px; } .d-flex > div > button{ flex:1; } }
     </style>
 </head>
 <body>

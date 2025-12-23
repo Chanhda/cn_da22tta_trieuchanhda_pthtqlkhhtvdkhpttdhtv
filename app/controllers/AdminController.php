@@ -285,8 +285,11 @@ class AdminController {
         $this->checkAuth();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $model = new AdvisorModel();
-            // Lưu ý: Cần thêm hàm updateAdvisor vào AdvisorModel để dòng này chạy được
-            $kq = $model->updateAdvisor($_POST['ma_covan'], $_POST['ho_ten'], $_POST['khoa'], $_POST['email'], $_POST['sdt']);
+            
+            // SỬA: Đổi 'ma_covan' thành 'msgv' để khớp với Form <input name="msgv">
+            // Các trường 'ho_ten', 'email', 'sdt' thì giữ nguyên vì form đã đúng
+            $kq = $model->updateAdvisor($_POST['msgv'], $_POST['ho_ten'], $_POST['email'], $_POST['sdt']); // Bỏ 'khoa' nếu form không có sửa khoa
+            
             if ($kq) {
                 echo "<script>alert('Cập nhật cố vấn thành công!'); window.location.href='index.php?page=admin_advisors';</script>";
             } else {
@@ -345,9 +348,10 @@ class AdminController {
     // 3. Form Sửa (Đã thêm logic)
     public function class_edit() {
         $this->checkAuth();
-        if (isset($_GET['ma_lop'])) {
+        // SỬA: Đổi 'ma_lop' thành 'id' để khớp với link <a href="...&id=...">
+        if (isset($_GET['id'])) {
             $model = new ClassModel();
-            $lop = $model->getClassById($_GET['ma_lop']); // Cần thêm hàm này vào ClassModel
+            $lop = $model->getClassById($_GET['id']); 
             
             $advModel = new AdvisorModel();
             $dsCoVan = $advModel->getAllAdvisors();
@@ -376,14 +380,22 @@ class AdminController {
     // 5. Xóa
     public function class_delete() {
         $this->checkAuth();
-        if (isset($_GET['ma_lop'])) {
+        // Kiểm tra xem trên URL có tham số 'id' không (VD: ...&id=DA21TT)
+        if (isset($_GET['id'])) {
             $model = new ClassModel();
-            if ($model->deleteClass($_GET['ma_lop'])) {
+            
+            // SỬA: Phải truyền đúng $_GET['id'] vào hàm xóa
+            $maLopCanXoa = $_GET['id'];
+            
+            if ($model->deleteClass($maLopCanXoa)) {
+                // Xóa thành công -> Quay lại trang danh sách
                 header("Location: index.php?page=admin_classes");
             } else {
-                echo "<script>alert('Không thể xóa! Lớp có sinh viên.'); window.history.back();</script>";
+                // Xóa thất bại (Do có sinh viên hoặc lỗi hệ thống)
+                echo "<script>alert('Không thể xóa! Lớp đang có sinh viên hoặc lỗi dữ liệu.'); window.location.href='index.php?page=admin_classes';</script>";
             }
         }
     }
+    
 }
 ?>

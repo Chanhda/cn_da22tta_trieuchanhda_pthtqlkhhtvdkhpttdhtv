@@ -159,10 +159,12 @@
                             <?php endif; ?>
                         </td>
                         <td class="text-center">
-                            <a href="index.php?page=admin_class_delete&id=<?php echo $lop['MaLop']; ?>" 
-                               class="btn btn-delete"
-                               onclick="return confirm('Xóa lớp này? (Chỉ có thể xóa nếu chưa có sinh viên)');">
-                               <i class="fas fa-trash me-1"></i>Xóa
+                            <a href="index.php?page=admin_class_edit&id=<?= $class['MaLop'] ?>" class="btn btn-info btn-sm text-white me-2">
+                                <i class="fas fa-edit"></i> Sửa
+                            </a>
+                            
+                            <a href="index.php?page=admin_class_delete&id=<?= $class['MaLop'] ?>" ...>
+                                <i class="fas fa-trash"></i> Xóa
                             </a>
                         </td>
                     </tr>
