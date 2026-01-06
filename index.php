@@ -5,10 +5,10 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // 2. Nạp các Controller
-require_once 'app/controllers/AuthController.php';
-require_once 'app/controllers/StudentController.php';
-require_once 'app/controllers/AdvisorController.php';
-require_once 'app/controllers/AdminController.php';
+require_once 'src/app/controllers/AuthController.php';
+require_once 'src/app/controllers/StudentController.php';
+require_once 'src/app/controllers/AdvisorController.php';
+require_once 'src/app/controllers/AdminController.php';
 
 // 3. Lấy page từ URL
 $page = isset($_GET['page']) ? $_GET['page'] : 'login';
